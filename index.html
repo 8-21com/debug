@@ -5,82 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Block 888,888 Countdown</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
         body {
             background-color: black;
             color: white;
             text-align: center;
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Courier New', monospace;
         }
-
-        #countdown-container {
+        .countdown-box {
             display: inline-block;
+            padding: 10px 30px;
             border: 1px solid white;
-            padding: 20px;
-            margin-top: 20px;
-            min-width: 350px; /* Adjust width to keep timer on one line */
-        }
-
-        #countdown {
             font-size: 24px;
             font-weight: bold;
-            color: #FFA500;
-            white-space: nowrap; /* Prevents breaking into multiple lines */
+            background-color: black;
+            color: #ffcc66;
+            white-space: nowrap; /* Ensures text stays in one line */
         }
-
         .footer {
-            margin-top: 40px;
-            font-size: 12px;
-            color: gray;
-        }
-
-        .footer a {
-            color: gray;
-            text-decoration: none;
-            border: 1px solid gray;
-            padding: 5px 10px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .footer a:hover {
-            background-color: gray;
-            color: black;
+            margin-top: 50px;
+            font-size: 14px;
+            color: grey;
         }
     </style>
 </head>
 <body>
     <h1>BLOCK 888,888</h1>
-    
-    <div id="countdown-container">
-        <div id="countdown">Loading...</div>
-    </div>
-
+    <div class="countdown-box" id="countdown">52d 19h 39m 57s</div>
     <p>ESTIMATED ARRIVAL: MARCH 22, 2025</p>
-    <p>CURRENT BLOCK: <span id="current-block">881283</span></p>
-
-    <div class="footer">
-        <p>UNOFFICIAL COUNTDOWN</p>
-        <a href="https://8-21.com">8-21.com</a>
-    </div>
+    <p>CURRENT BLOCK: 881283</p>
+    <div class="footer">UNOFFICIAL COUNTDOWN<br><a href="https://8-21.com">8-21.com</a></div>
 
     <script>
         function updateCountdown() {
-            const targetDate = new Date("March 22, 2025 00:00:00").getTime();
-            const now = new Date().getTime();
-            const timeLeft = targetDate - now;
-
-            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-            document.getElementById("countdown").innerHTML = 
-                `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            let countdownElement = document.getElementById("countdown");
+            let targetDate = new Date("March 22, 2025 00:00:00").getTime();
+            setInterval(function () {
+                let now = new Date().getTime();
+                let timeLeft = targetDate - now;
+                let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                countdownElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
         }
-
-        setInterval(updateCountdown, 1000);
         updateCountdown();
     </script>
 </body>
