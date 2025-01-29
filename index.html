@@ -5,50 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Block 888,888 Countdown</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
         body {
             background-color: black;
             color: white;
+            font-family: 'VT323', monospace;
             text-align: center;
-            font-family: 'Courier New', monospace;
+            margin: 0;
+            overflow: hidden;
         }
+
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            position: relative;
+        }
+
         .countdown-box {
-            display: inline-block;
-            padding: 10px 30px;
             border: 1px solid white;
-            font-size: 24px;
+            padding: 10px 20px;
+            display: inline-block;
+            font-size: 30px;
             font-weight: bold;
-            background-color: black;
             color: #ffcc66;
-            white-space: nowrap; /* Ensures text stays in one line */
+            background-color: rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
         }
+
+        h1 {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .details {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #888;
+        }
+
         .footer {
-            margin-top: 50px;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
             font-size: 14px;
-            color: grey;
+            color: gray;
+        }
+
+        .footer a {
+            color: gray;
+            text-decoration: none;
+            border: 1px solid gray;
+            padding: 5px 10px;
+            display: inline-block;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>BLOCK 888,888</h1>
-    <div class="countdown-box" id="countdown">52d 19h 39m 57s</div>
-    <p>ESTIMATED ARRIVAL: MARCH 22, 2025</p>
-    <p>CURRENT BLOCK: 881283</p>
-    <div class="footer">UNOFFICIAL COUNTDOWN<br><a href="https://8-21.com">8-21.com</a></div>
+    <div class="countdown-container">
+        <h1>BLOCK 888,888</h1>
+        <div class="countdown-box" id="countdown">Loading...</div>
+        <div class="details">
+            <p>ESTIMATED ARRIVAL: MARCH 22, 2025</p>
+            <p>CURRENT BLOCK: <span id="currentBlock">881283</span></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>UNOFFICIAL COUNTDOWN</p>
+        <a href="https://8-21.com">8-21.com</a>
+    </div>
 
     <script>
         function updateCountdown() {
-            let countdownElement = document.getElementById("countdown");
-            let targetDate = new Date("March 22, 2025 00:00:00").getTime();
-            setInterval(function () {
-                let now = new Date().getTime();
-                let timeLeft = targetDate - now;
-                let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                countdownElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-            }, 1000);
+            const targetDate = new Date("March 22, 2025 00:00:00 UTC").getTime();
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference <= 0) {
+                document.getElementById("countdown").innerHTML = "BLOCK REACHED!";
+                return;
+            }
+
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = 
+                `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
+
+        setInterval(updateCountdown, 1000);
         updateCountdown();
     </script>
 </body>
