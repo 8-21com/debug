@@ -1,69 +1,191 @@
-let lastFetchTime = Date.now();
-let lastKnownBlockHeight = 0;
-
-async function fetchBlockData() {
-    try {
-        let response = await fetch('https://mempool.space/api/blocks/tip/height');
-        let currentHeight = await response.json();
-
-        if (!currentHeight || isNaN(currentHeight)) {
-            throw new Error("Invalid block height data");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block 888,888 Countdown</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            margin: 0;
+            background-color: #000000;
+            color: #FFFFFF;
+            overflow-x: hidden;
         }
 
-        document.getElementById("current-block").innerText = `Current Block: ${currentHeight}`;
+        h2 {
+            font-size: 54px;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            color: #CCCCCC;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 900;
+        }
 
-        // Only update estimated time if a new block is detected
-        if (currentHeight !== lastKnownBlockHeight) {
-            lastKnownBlockHeight = currentHeight;
+        #countdown-container {
+            display: inline-block;
+            padding: 20px;
+            border: 1px solid #4D4C4C;
+            background-color: #000000;
+            margin-top: 20px;
+            width: 300px;
+            text-align: center;
+        }
 
-            let blocksLeft = targetBlock - currentHeight;
-            if (blocksLeft <= 0) {
-                document.getElementById("countdown").innerText = "BLOCK REACHED!";
-                document.getElementById("estimated-arrival").innerText = "Estimated Arrival: Achieved";
-                return;
+        #countdown {
+            font-size: 32px;
+            font-weight: 900;
+            color: #FF9900;
+            padding: 10px;
+            display: block;
+            text-shadow: 0 0 5px rgba(255, 153, 0, 0.5);
+            min-width: 250px;
+            white-space: nowrap;
+        }
+
+        .info-text {
+            font-size: 16px;
+            font-weight: 900;
+            color: #4D4C4C;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        #current-block {
+            font-size: 16px;
+            font-weight: 900;
+            color: #888888;
+            margin-top: 10px;
+            text-transform: uppercase;
+            animation: pulse 2s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        #footer {
+            font-size: 18px;
+            font-weight: 900;
+            color: #AAAAAA;
+            margin-top: 40px;
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        #footer div {
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        #footer a {
+            text-decoration: none;
+            color: #4D4C4C;
+            padding: 5px 15px;
+            border: 1px solid #4D4C4C;
+            background-color: #000000;
+            transition: color 0.3s ease-in-out;
+            font-size: 18px;
+        }
+
+        #footer a:hover {
+            color: #FF9900;
+        }
+    </style>
+</head>
+<body>
+    <h2>Block 888,888</h2>
+    <div id="countdown-container">
+        <div id="countdown">Loading...</div>
+    </div>
+
+    <div id="estimated-arrival" class="info-text">Estimated Arrival: Calculating...</div>
+    <div id="current-block">Current Block: Fetching...</div>
+
+    <div id="footer">
+        <div>UNOFFICIAL COUNTDOWN</div>
+        <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
+    </div>
+
+    <script>
+        const targetBlock = 888888;
+        const avgBlockTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+        let estimatedTimeLeft = 0;
+        let lastFetchTime = Date.now();
+        let lastKnownBlockHeight = 0;
+
+        async function fetchBlockData() {
+            try {
+                let response = await fetch('https://mempool.space/api/blocks/tip/height');
+                let currentHeight = await response.json();
+
+                if (!currentHeight || isNaN(currentHeight)) {
+                    throw new Error("Invalid block height data");
+                }
+
+                document.getElementById("current-block").innerText = `Current Block: ${currentHeight}`;
+
+                if (currentHeight !== lastKnownBlockHeight) {
+                    lastKnownBlockHeight = currentHeight;
+
+                    let blocksLeft = targetBlock - currentHeight;
+                    if (blocksLeft <= 0) {
+                        document.getElementById("countdown").innerText = "BLOCK REACHED!";
+                        document.getElementById("estimated-arrival").innerText = "Estimated Arrival: Achieved";
+                        return;
+                    }
+
+                    estimatedTimeLeft = blocksLeft * avgBlockTime;
+                    let targetDate = new Date(Date.now() + estimatedTimeLeft);
+                    let estimatedArrivalDate = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                    document.getElementById("estimated-arrival").innerText = `Estimated Arrival: ${estimatedArrivalDate}`;
+                    lastFetchTime = Date.now();
+                }
+            } catch (error) {
+                console.error("Error fetching block data:", error);
+                document.getElementById("current-block").innerText = "Current Block: ERROR";
+                document.getElementById("estimated-arrival").innerText = "Estimated Arrival: UNKNOWN";
+                document.getElementById("countdown").innerText = "N/A";
             }
-
-            estimatedTimeLeft = blocksLeft * avgBlockTime;
-            let targetDate = new Date(Date.now() + estimatedTimeLeft);
-            let estimatedArrivalDate = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
-            document.getElementById("estimated-arrival").innerText = `Estimated Arrival: ${estimatedArrivalDate}`;
-            lastFetchTime = Date.now();
         }
-    } catch (error) {
-        console.error("Error fetching block data:", error);
-        document.getElementById("current-block").innerText = "Current Block: ERROR";
-        document.getElementById("estimated-arrival").innerText = "Estimated Arrival: UNKNOWN";
-        document.getElementById("countdown").innerText = "N/A";
-    }
-}
 
-function updateCountdown() {
-    function tick() {
-        let now = Date.now();
-        let timePassed = now - lastFetchTime;
+        function updateCountdown() {
+            function tick() {
+                let now = Date.now();
+                let timePassed = now - lastFetchTime;
+                let adjustedTimeLeft = estimatedTimeLeft - timePassed;
 
-        let adjustedTimeLeft = estimatedTimeLeft - timePassed;
+                let seconds = Math.floor(adjustedTimeLeft / 1000);
+                let days = Math.floor(seconds / (3600 * 24));
+                seconds %= 3600 * 24;
+                let hours = Math.floor(seconds / 3600);
+                seconds %= 3600;
+                let minutes = Math.floor(seconds / 60);
+                seconds %= 60;
 
-        let seconds = Math.floor(adjustedTimeLeft / 1000);
-        let days = Math.floor(seconds / (3600 * 24));
-        seconds %= 3600 * 24;
-        let hours = Math.floor(seconds / 3600);
-        seconds %= 3600;
-        let minutes = Math.floor(seconds / 60);
-        seconds %= 60;
+                document.getElementById("countdown").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-        document.getElementById("countdown").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-
-        if (adjustedTimeLeft > 0) {
-            setTimeout(tick, 1000);
+                if (adjustedTimeLeft > 0) {
+                    setTimeout(tick, 1000);
+                }
+            }
+            tick();
         }
-    }
-    tick();
-}
 
-async function startCountdown() {
-    await fetchBlockData();
-    updateCountdown();
-    setInterval(fetchBlockData, 60000); // Fetch new block data every 1 minute
-}
+        async function startCountdown() {
+            await fetchBlockData();
+            updateCountdown();
+            setInterval(fetchBlockData, 60000); // Fetch new block data every 1 minute
+        }
+
+        document.addEventListener("DOMContentLoaded", startCountdown);
+    </script>
+</body>
+</html>
