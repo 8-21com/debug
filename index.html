@@ -1,19 +1,51 @@
 let lastFetchTime = Date.now();
+let lastKnownBlockHeight = 0;
+
+async function fetchBlockData() {
+    try {
+        let response = await fetch('https://mempool.space/api/blocks/tip/height');
+        let currentHeight = await response.json();
+
+        if (!currentHeight || isNaN(currentHeight)) {
+            throw new Error("Invalid block height data");
+        }
+
+        document.getElementById("current-block").innerText = `Current Block: ${currentHeight}`;
+
+        // Only update estimated time if a new block is detected
+        if (currentHeight !== lastKnownBlockHeight) {
+            lastKnownBlockHeight = currentHeight;
+
+            let blocksLeft = targetBlock - currentHeight;
+            if (blocksLeft <= 0) {
+                document.getElementById("countdown").innerText = "BLOCK REACHED!";
+                document.getElementById("estimated-arrival").innerText = "Estimated Arrival: Achieved";
+                return;
+            }
+
+            estimatedTimeLeft = blocksLeft * avgBlockTime;
+            let targetDate = new Date(Date.now() + estimatedTimeLeft);
+            let estimatedArrivalDate = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            document.getElementById("estimated-arrival").innerText = `Estimated Arrival: ${estimatedArrivalDate}`;
+            lastFetchTime = Date.now();
+        }
+    } catch (error) {
+        console.error("Error fetching block data:", error);
+        document.getElementById("current-block").innerText = "Current Block: ERROR";
+        document.getElementById("estimated-arrival").innerText = "Estimated Arrival: UNKNOWN";
+        document.getElementById("countdown").innerText = "N/A";
+    }
+}
 
 function updateCountdown() {
     function tick() {
         let now = Date.now();
-        let elapsed = now - lastFetchTime;
+        let timePassed = now - lastFetchTime;
 
-        // Reduce estimated time left based on actual passage of time
-        estimatedTimeLeft -= 1000;
+        let adjustedTimeLeft = estimatedTimeLeft - timePassed;
 
-        if (elapsed >= 60000) {  // Re-sync every 1 minute
-            fetchBlockData();  // Update estimated time from API
-            lastFetchTime = now;
-        }
-
-        let seconds = Math.floor(estimatedTimeLeft / 1000);
+        let seconds = Math.floor(adjustedTimeLeft / 1000);
         let days = Math.floor(seconds / (3600 * 24));
         seconds %= 3600 * 24;
         let hours = Math.floor(seconds / 3600);
@@ -23,7 +55,7 @@ function updateCountdown() {
 
         document.getElementById("countdown").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-        if (estimatedTimeLeft > 0) {
+        if (adjustedTimeLeft > 0) {
             setTimeout(tick, 1000);
         }
     }
@@ -32,7 +64,6 @@ function updateCountdown() {
 
 async function startCountdown() {
     await fetchBlockData();
-    lastFetchTime = Date.now();
     updateCountdown();
     setInterval(fetchBlockData, 60000); // Fetch new block data every 1 minute
 }
