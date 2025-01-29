@@ -12,6 +12,11 @@
             background-color: #000000;
             color: #FFFFFF;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            position: relative;
         }
 
         h2 {
@@ -22,6 +27,17 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             font-weight: 900;
+            z-index: 2;
+        }
+
+        .center-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            position: relative;
+            z-index: 2;
         }
 
         #countdown-container {
@@ -29,7 +45,6 @@
             padding: 20px;
             border: 1px solid #4D4C4C;
             background-color: #000000;
-            margin-top: 20px;
             width: 300px;
             text-align: center;
         }
@@ -45,7 +60,7 @@
             white-space: nowrap;
         }
 
-        #current-block, #blocks-left, #estimated-arrival {
+        #estimated-arrival, #current-block, #blocks-left {
             font-size: 16px;
             font-weight: 900;
             color: #888888;
@@ -63,12 +78,9 @@
             font-size: 18px;
             font-weight: 900;
             color: #AAAAAA;
-            margin-top: 40px;
-            position: absolute;
-            bottom: 70px;
-            left: 50%;
-            transform: translateX(-50%);
+            margin-bottom: 20px;
             text-align: center;
+            z-index: 2;
         }
 
         #footer div {
@@ -90,6 +102,7 @@
             color: #FF9900;
         }
 
+        /* Rune Animation Background */
         #runeCanvas {
             position: fixed;
             top: 0;
@@ -98,7 +111,7 @@
             height: 100vh;
             pointer-events: none;
             opacity: 0.28;
-            z-index: -1;
+            z-index: 1;
         }
     </style>
 </head>
@@ -106,13 +119,15 @@
     <canvas id="runeCanvas"></canvas>
 
     <h2>Block 888,888</h2>
-    <div id="countdown-container">
-        <div id="countdown">Loading...</div>
-    </div>
 
-    <div id="estimated-arrival">Estimated Arrival: Calculating...</div>
-    <div id="current-block">Current Block: Fetching...</div>
-    <div id="blocks-left">Blocks Left: Calculating...</div>
+    <div class="center-container">
+        <div id="countdown-container">
+            <div id="countdown">Loading...</div>
+        </div>
+        <div id="estimated-arrival">Estimated Arrival: Calculating...</div>
+        <div id="current-block">Current Block: Fetching...</div>
+        <div id="blocks-left">Blocks Left: Calculating...</div>
+    </div>
 
     <div id="footer">
         <div>UNOFFICIAL COUNTDOWN</div>
@@ -194,7 +209,7 @@
 
         document.addEventListener("DOMContentLoaded", startCountdown);
 
-        // Rune Background Animation Restored
+        // Restored Rune Background Animation
         const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
         const canvas = document.getElementById("runeCanvas");
         const ctx = canvas.getContext("2d");
