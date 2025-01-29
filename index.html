@@ -1,80 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>888888 Countdown</title>
-    <style>
-        body {
-            background-color: black;
-            color: orange;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        #countdown-container {
-            font-size: 2em;
-            margin-top: 20px;
-        }
-        #footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: black;
-            padding: 10px;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
+let lastFetchTime = Date.now();
 
-    <h1>888888 Countdown</h1>
-    <p id="current-block">Current Block: <span id="block-number">Loading...</span></p>
-    <p id="countdown-container">
-        Time Remaining: <span id="hours">--</span>:<span id="minutes">--</span>:<span id="seconds">--</span>
-    </p>
+function updateCountdown() {
+    function tick() {
+        let now = Date.now();
+        let elapsed = now - lastFetchTime;
 
-    <div id="footer">Footer Content</div>
+        // Reduce estimated time left based on actual passage of time
+        estimatedTimeLeft -= 1000;
 
-    <script>
-        let blockGoal = 888888;
-        let averageBlockTime = 600; // 10 minutes per block in seconds (this is still dynamically adjusted)
-        let lastBlockUpdate = Date.now();
-        let remainingSeconds = 0;
-
-        function fetchBlockHeight() {
-            // Simulating API request for the current block height (replace with real API)
-            let simulatedBlockHeight = Math.floor(750000 + (Date.now() / 60000) % 20000); // Example simulation
-
-            document.getElementById("block-number").innerText = simulatedBlockHeight;
-
-            let blocksLeft = blockGoal - simulatedBlockHeight;
-            let estimatedTimeLeft = blocksLeft * averageBlockTime;
-
-            let now = Date.now();
-            let timeElapsedSinceLastUpdate = Math.floor((now - lastBlockUpdate) / 1000);
-            remainingSeconds = Math.max(0, estimatedTimeLeft - timeElapsedSinceLastUpdate);
-
-            lastBlockUpdate = now;
+        if (elapsed >= 60000) {  // Re-sync every 1 minute
+            fetchBlockData();  // Update estimated time from API
+            lastFetchTime = now;
         }
 
-        function updateCountdown() {
-            if (remainingSeconds > 0) {
-                remainingSeconds--; // Smooth countdown for seconds
-            }
+        let seconds = Math.floor(estimatedTimeLeft / 1000);
+        let days = Math.floor(seconds / (3600 * 24));
+        seconds %= 3600 * 24;
+        let hours = Math.floor(seconds / 3600);
+        seconds %= 3600;
+        let minutes = Math.floor(seconds / 60);
+        seconds %= 60;
 
-            let hours = Math.floor(remainingSeconds / 3600);
-            let minutes = Math.floor((remainingSeconds % 3600) / 60);
-            let seconds = remainingSeconds % 60;
+        document.getElementById("countdown").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-            document.getElementById("hours").innerText = String(hours).padStart(2, '0');
-            document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
-            document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
+        if (estimatedTimeLeft > 0) {
+            setTimeout(tick, 1000);
         }
+    }
+    tick();
+}
 
-        fetchBlockHeight();
-        setInterval(fetchBlockHeight, 60000); // Fetch new block height every minute
-        setInterval(updateCountdown, 1000);   // Update countdown every second
-    </script>
-
-</body>
-</html>
+async function startCountdown() {
+    await fetchBlockData();
+    lastFetchTime = Date.now();
+    updateCountdown();
+    setInterval(fetchBlockData, 60000); // Fetch new block data every 1 minute
+}
