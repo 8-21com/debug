@@ -45,15 +45,7 @@
             white-space: nowrap;
         }
 
-        .info-text {
-            font-size: 16px;
-            font-weight: 900;
-            color: #4D4C4C;
-            margin-top: 10px;
-            text-transform: uppercase;
-        }
-
-        #current-block {
+        #current-block, #blocks-left, #estimated-arrival {
             font-size: 16px;
             font-weight: 900;
             color: #888888;
@@ -118,8 +110,9 @@
         <div id="countdown">Loading...</div>
     </div>
 
-    <div id="estimated-arrival" class="info-text">Estimated Arrival: Calculating...</div>
+    <div id="estimated-arrival">Estimated Arrival: Calculating...</div>
     <div id="current-block">Current Block: Fetching...</div>
+    <div id="blocks-left">Blocks Left: Calculating...</div>
 
     <div id="footer">
         <div>UNOFFICIAL COUNTDOWN</div>
@@ -143,11 +136,12 @@
                 }
 
                 document.getElementById("current-block").innerText = `Current Block: ${currentHeight}`;
+                let blocksLeft = targetBlock - currentHeight;
+                document.getElementById("blocks-left").innerText = `Blocks Left: ${blocksLeft}`;
 
                 if (currentHeight !== lastKnownBlockHeight) {
                     lastKnownBlockHeight = currentHeight;
 
-                    let blocksLeft = targetBlock - currentHeight;
                     if (blocksLeft <= 0) {
                         document.getElementById("countdown").innerText = "BLOCK REACHED!";
                         document.getElementById("estimated-arrival").innerText = "Estimated Arrival: Achieved";
@@ -165,6 +159,7 @@
             } catch (error) {
                 console.error("Error fetching block data:", error);
                 document.getElementById("current-block").innerText = "Current Block: ERROR";
+                document.getElementById("blocks-left").innerText = "Blocks Left: UNKNOWN";
                 document.getElementById("estimated-arrival").innerText = "Estimated Arrival: UNKNOWN";
                 document.getElementById("countdown").innerText = "N/A";
             }
@@ -199,45 +194,6 @@
         }
 
         document.addEventListener("DOMContentLoaded", startCountdown);
-
-        // 🔮 Rune Background Animation Restored
-        const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
-        const canvas = document.getElementById("runeCanvas");
-        const ctx = canvas.getContext("2d");
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-
-        let runeSymbols = [];
-        for (let i = 0; i < 50; i++) {
-            runeSymbols.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                rune: runes[Math.floor(Math.random() * runes.length)],
-                speed: Math.random() * 1.5 + 0.5,
-            });
-        }
-
-        function drawRunes() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
-            ctx.font = "30px Courier New";
-
-            runeSymbols.forEach(rune => {
-                ctx.fillText(rune.rune, rune.x, rune.y);
-                rune.y += rune.speed;
-                if (rune.y > canvas.height) rune.y = 0;
-            });
-
-            requestAnimationFrame(drawRunes);
-        }
-
-        drawRunes();
     </script>
 </body>
 </html>
