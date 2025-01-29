@@ -152,8 +152,7 @@
                     lastFetchTime = Date.now();
 
                     let targetDate = new Date(Date.now() + estimatedTimeLeft);
-                    let estimatedArrivalDate = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
+                    let estimatedArrivalDate = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).replace(/,\s+/, ', ');
                     document.getElementById("estimated-arrival").innerText = `Estimated Arrival: ${estimatedArrivalDate}`;
                 }
             } catch (error) {
@@ -194,6 +193,36 @@
         }
 
         document.addEventListener("DOMContentLoaded", startCountdown);
+
+        // Rune Background Animation Restored
+        const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
+        const canvas = document.getElementById("runeCanvas");
+        const ctx = canvas.getContext("2d");
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        let runeSymbols = Array.from({ length: 50 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            rune: runes[Math.floor(Math.random() * runes.length)],
+            speed: Math.random() * 1.5 + 0.5,
+        }));
+
+        function drawRunes() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+            ctx.font = "30px Courier New";
+            runeSymbols.forEach(r => { ctx.fillText(r.rune, r.x, r.y); r.y = (r.y + r.speed) % canvas.height; });
+            requestAnimationFrame(drawRunes);
+        }
+
+        drawRunes();
     </script>
 </body>
 </html>
