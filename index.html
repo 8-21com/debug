@@ -19,7 +19,7 @@
     h2 {
       font-size: 54px;
       margin-top: 50px;
-      margin-bottom: 15px; 
+      margin-bottom: 15px;
       color: #CCCCCC;
       text-transform: uppercase;
       letter-spacing: 2px;
@@ -34,7 +34,7 @@
       font-weight: 900;
       color: #AAAAAA;
       text-transform: uppercase;
-      margin-bottom: 40px; /* Extra space below the subtitle */
+      margin-bottom: 40px; /* Extra space for aesthetics */
     }
 
     /* Countdown Container */
@@ -62,7 +62,7 @@
     }
 
     /* Lines Below Countdown */
-    #approx-arrival, 
+    #estimate, 
     #current-block, 
     #blocks-left {
       font-size: 16px;
@@ -106,10 +106,10 @@
       margin-bottom: 10px; 
     }
 
-    /* COPY DATA Button */
+    /* COPY DATA Button - with more padding */
     #copy-button {
-      padding: 5px 15px;
-      font-size: 16px; 
+      padding: 10px 20px; /* Increased padding for better aesthetics */
+      font-size: 16px;
       font-weight: 900;
       color: #888888;
       background: none;
@@ -167,7 +167,7 @@
   </div>
 
   <!-- Lines Below Countdown -->
-  <div id="approx-arrival">Estimate: Calculating...</div>
+  <div id="estimate">Estimate: Calculating...</div>
   <div id="current-block">Current Block: Fetching...</div>
   <div id="blocks-left">Blocks Left: Calculating...</div>
 
@@ -194,39 +194,36 @@
         const currentHeight = await res.json();
 
         // Current Block
-        document.getElementById("current-block").innerText 
-          = `Current Block: ${currentHeight}`;
+        document.getElementById("current-block").innerText = `Current Block: ${currentHeight}`;
 
         // Blocks Left
         const blocksLeft = targetBlock - currentHeight;
-        document.getElementById("blocks-left").innerText
-          = `Blocks Left: ${blocksLeft}`;
+        document.getElementById("blocks-left").innerText = `Blocks Left: ${blocksLeft}`;
 
         // Time & Date
         estimatedTimeLeft = blocksLeft * avgBlockTime;
         lastFetchTime     = Date.now();
 
         const targetDate = new Date(Date.now() + estimatedTimeLeft);
-        const approxArrivalDate = targetDate
+        const estimateDate = targetDate
           .toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
           .replace(/,\s+/, ", ");
         
-        // Approx. Arrival
-        document.getElementById("approx-arrival").innerText
-          = `Estimate: ${approxArrivalDate}`;
+        // Estimate
+        document.getElementById("estimate").innerText = `Estimate: ${estimateDate}`;
       } catch (err) {
         console.error("Error fetching block data:", err);
       }
     }
 
-    // 2) Copy data (with ASCII art)
+    // 2) Copy data with ASCII art
     const copyFeedback = document.getElementById("copy-feedback");
     document.getElementById("copy-button").addEventListener("click", () => {
-      const approxArr  = document.getElementById("approx-arrival").innerText.split(": ")[1];
-      const currBlk    = document.getElementById("current-block").innerText.split(": ")[1];
+      const est  = document.getElementById("estimate").innerText.split(": ")[1];
+      const currBlk = document.getElementById("current-block").innerText.split(": ")[1];
       const blocksLeft = document.getElementById("blocks-left").innerText.split(": ")[1];
 
-      /* ASCII art is clearly visible below */
+      /* ASCII Art */
       const discordText = `
 \`\`\`
 #      ____  _____ __________⛏
@@ -235,88 +232,21 @@
 #   / _, _/___/ // // /___
 #  /_/ |_|/____/___/\\____/
 #
-#  Estimate: ${approxArr}
+#  Estimate: ${est}
 #  Current Block:  ${currBlk}
 #  Blocks Left:  ${blocksLeft}
 \`\`\`
       `.trim();
 
       navigator.clipboard.writeText(discordText).then(() => {
-        // Show "DATA COPIED"
         copyFeedback.style.opacity = 1;
-        setTimeout(() => {
-          copyFeedback.style.opacity = 0;
-        }, 1000);
-      }).catch((err) => console.error("Clipboard error:", err));
+        setTimeout(() => { copyFeedback.style.opacity = 0; }, 1000);
+      }).catch(err => console.error("Clipboard error:", err));
     });
 
-    // 3) Update Countdown every second
-    function updateCountdown() {
-      const now         = Date.now();
-      const timeElapsed = now - lastFetchTime;
-      const timeLeft    = estimatedTimeLeft - timeElapsed;
-
-      if (timeLeft <= 0) {
-        document.getElementById("countdown").innerText 
-          = "Block 888,888 has been reached!";
-        return;
-      }
-
-      const days    = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-      const hours   = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-      document.getElementById("countdown").innerText 
-        = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-
-    // 4) Initialize
+    // Initialize
     fetchBlockData();
-    setInterval(fetchBlockData, 10 * 60 * 1000); // every 10 min
-    setInterval(updateCountdown, 1000);          // every second
-
-    /* ---------------------------
-       ORIGINAL DOWNWARD RUNES BG
-       --------------------------- */
-    const canvas = document.getElementById("runeCanvas");
-    const ctx    = canvas.getContext("2d");
-    const runes  = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
-    let runeSymbols = [];
-
-    // Resize canvas to window
-    function resizeCanvas() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
-    // Create 50 drifting runes
-    for (let i = 0; i < 50; i++) {
-      runeSymbols.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        rune: runes[Math.floor(Math.random() * runes.length)],
-        speed: Math.random() * 1.5 + 0.5,
-      });
-    }
-
-    function drawRunes() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
-      ctx.font = "30px Courier New";
-      
-      runeSymbols.forEach(obj => {
-        ctx.fillText(obj.rune, obj.x, obj.y);
-        obj.y += obj.speed;
-        if (obj.y > canvas.height) {
-          obj.y = 0;
-        }
-      });
-      requestAnimationFrame(drawRunes);
-    }
-    drawRunes();
+    setInterval(fetchBlockData, 10 * 60 * 1000);
   </script>
 </body>
 </html>
