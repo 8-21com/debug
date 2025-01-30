@@ -87,6 +87,7 @@
             text-decoration: none;
             color: #4D4C4C;
             font-size: 18px;
+            transition: color 0.3s ease-in-out;
         }
 
         #footer a:hover {
@@ -98,7 +99,7 @@
             padding: 5px 15px;
             font-size: 18px;
             font-weight: 900;
-            color: #AAAAAA;
+            color: #888888; /* Darker text color */
             background: none;
             border: 1px solid #4D4C4C;
             cursor: pointer;
@@ -106,6 +107,10 @@
             transition: color 0.3s ease-in-out;
             font-family: inherit;
             margin-bottom: 10px;
+            display: inline-block;
+            margin-left: auto;
+            margin-right: auto;
+            text-shadow: 0 0 5px rgba(255, 153, 0, 0.5); /* Glowing effect */
         }
 
         #copy-button:hover {
@@ -190,31 +195,87 @@
 \`\`\`
 #      ____  _____ __________⛏
 #     / __ \\/ ___//  _/ BLOCK /
-#    / /_/ /\\__ \\ / //  888888
+#    / /_/ / \\__ \\ / //  888888
 #   / _, _/___/ // // /___   
 #  /_/ |_|/____/___/\\____/    
 #
 # Estimated Arrival: ${estimatedArrival}
-# Current Block:  ${currentBlock}
-# Blocks Left:  ${blocksLeft}
+# Current Block: ${currentBlock}
+# Blocks Left: ${blocksLeft}
 \`\`\`
-`;
+            `;
 
-            navigator.clipboard.writeText(discordText).then(() => {
+            navigator.clipboard.writeText(discordText.trim()).then(function() {
                 let checkmark = document.getElementById("copy-checkmark");
-                checkmark.style.opacity = "1";
+                checkmark.style.opacity = 1;
                 setTimeout(() => {
-                    checkmark.style.opacity = "0";
+                    checkmark.style.opacity = 0;
                 }, 2000);
+            }, function(err) {
+                console.error('Could not copy text: ', err);
             });
         });
 
-        async function startCountdown() {
-            await fetchBlockData();
-            setInterval(fetchBlockData, 60000);
+        function updateCountdown() {
+            let now = Date.now();
+            let timeElapsed = now - lastFetchTime;
+            let timeLeft = estimatedTimeLeft - timeElapsed;
+
+            if (timeLeft < 0) {
+                document.getElementById("countdown").innerText = "Block 888,888 has been reached!";
+                return;
+            }
+
+            let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
 
-        document.addEventListener("DOMContentLoaded", startCountdown);
+        fetchBlockData();
+        setInterval(fetchBlockData, 10 * 60 * 1000); // Fetch new block data every 10 minutes
+        setInterval(updateCountdown, 1000); // Update countdown every second
+
+        // Rune Background Animation
+        const canvas = document.getElementById('runeCanvas');
+        const ctx = canvas.getContext('2d');
+        const runes = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛋᛏᛒᛖᛗᛚᛜᛞᛟ';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawRunes() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#4D4C4C';
+            ctx.font = `${fontSize}px monospace`;
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = runes[Math.floor(Math.random() * runes.length)];
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+
+                ctx.fillText(text, x, y);
+
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                drops[i]++;
+            }
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        setInterval(drawRunes, 50);
     </script>
 </body>
 </html>
