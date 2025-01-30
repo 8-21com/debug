@@ -80,6 +80,7 @@
         #footer div {
             margin-bottom: 15px;
             text-transform: uppercase;
+            font-size: 110%; /* Increased "UNOFFICIAL COUNTDOWN" by 10% */
         }
 
         #footer a {
@@ -101,25 +102,28 @@
             padding: 5px 15px;
             font-size: 14px;
             font-weight: 900;
-            color: #CCCCCC;
-            background-color: #222222;
-            border: 1px solid #444444;
+            color: #AAAAAA;
+            background: none;
+            border: 1px solid #4D4C4C;
             cursor: pointer;
             text-transform: uppercase;
+            transition: color 0.3s ease-in-out;
             margin-bottom: 10px;
+            font-family: inherit;
         }
 
         #copy-button:hover {
-            background-color: #333333;
+            color: #FF9900;
         }
 
-        /* Subtle "DATA COPIED" effect */
-        #copy-confirmation {
-            font-size: 14px;
+        /* Checkmark Effect */
+        #copy-checkmark {
+            font-size: 16px;
             color: #888888;
             opacity: 0;
-            transform: translateY(0);
-            transition: opacity 1s ease-out, transform 1s ease-out;
+            transition: opacity 1s ease-in-out;
+            display: inline-block;
+            margin-left: 10px;
         }
 
         /* Restored Rune Background Visibility */
@@ -149,8 +153,8 @@
 
     <div id="footer">
         <div>UNOFFICIAL COUNTDOWN</div>
-        <button id="copy-button">COPY DATA FOR DISCORD</button>
-        <div id="copy-confirmation">DATA COPIED</div>
+        <button id="copy-button">COPY DATA 🡒 PASTE IN DISCORD</button><span id="copy-checkmark">☑</span>
+        <br>
         <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
     </div>
 
@@ -194,19 +198,17 @@
 #   / _, _/___/ // // /___   
 #  /_/ |_|/____/___/\\____/    
 #
-# Estimated Arrival: ${estimatedArrival}
-# Current Block:  ${currentBlock}
-# Blocks Left:  ${blocksLeft}
+#  Estimated Arrival: ${estimatedArrival}
+#  Current Block:  ${currentBlock}
+#  Blocks Left:  ${blocksLeft}
 \`\`\`
 `;
 
             navigator.clipboard.writeText(discordText).then(() => {
-                let confirmation = document.getElementById("copy-confirmation");
-                confirmation.style.opacity = "1";
-                confirmation.style.transform = "translateY(-10px)";
+                let checkmark = document.getElementById("copy-checkmark");
+                checkmark.style.opacity = "1";
                 setTimeout(() => {
-                    confirmation.style.opacity = "0";
-                    confirmation.style.transform = "translateY(0)";
+                    checkmark.style.opacity = "0";
                 }, 2000);
             });
         });
