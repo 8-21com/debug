@@ -71,14 +71,14 @@
             color: #AAAAAA;
             width: 100%;
             position: fixed;
-            bottom: 90px; /* Adjusted to fit button */
+            bottom: 90px;
             left: 0;
             text-align: center;
             z-index: 2;
         }
 
         #footer div {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-transform: uppercase;
         }
 
@@ -96,20 +96,30 @@
             color: #FF9900;
         }
 
+        /* Copy Button Styling */
         #copy-button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 5px 15px;
+            font-size: 14px;
             font-weight: 900;
-            color: #000000;
-            background-color: #FF9900;
-            border: none;
+            color: #CCCCCC;
+            background-color: #222222;
+            border: 1px solid #444444;
             cursor: pointer;
             text-transform: uppercase;
+            margin-bottom: 10px;
         }
 
         #copy-button:hover {
-            background-color: #E68900;
+            background-color: #333333;
+        }
+
+        /* Subtle "DATA COPIED" effect */
+        #copy-confirmation {
+            font-size: 14px;
+            color: #888888;
+            opacity: 0;
+            transform: translateY(0);
+            transition: opacity 1s ease-out, transform 1s ease-out;
         }
 
         /* Restored Rune Background Visibility */
@@ -140,6 +150,7 @@
     <div id="footer">
         <div>UNOFFICIAL COUNTDOWN</div>
         <button id="copy-button">COPY DATA FOR DISCORD</button>
+        <div id="copy-confirmation">DATA COPIED</div>
         <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
     </div>
 
@@ -155,93 +166,57 @@
                 let response = await fetch('https://mempool.space/api/blocks/tip/height');
                 let currentHeight = await response.json();
 
-                if (!currentHeight || isNaN(currentHeight)) {
-                    throw new Error("Invalid block height data");
-                }
-
                 document.getElementById("current-block").innerText = `Current Block: ${currentHeight}`;
                 let blocksLeft = targetBlock - currentHeight;
                 document.getElementById("blocks-left").innerText = `Blocks Left: ${blocksLeft}`;
 
-                if (currentHeight !== lastKnownBlockHeight) {
-                    lastKnownBlockHeight = currentHeight;
+                estimatedTimeLeft = blocksLeft * avgBlockTime;
+                lastFetchTime = Date.now();
 
-                    if (blocksLeft <= 0) {
-                        document.getElementById("countdown").innerText = "BLOCK REACHED!";
-                        document.getElementById("estimated-arrival").innerText = "Estimated Arrival: Achieved";
-                        return;
-                    }
-
-                    estimatedTimeLeft = blocksLeft * avgBlockTime;
-                    lastFetchTime = Date.now();
-
-                    let targetDate = new Date(Date.now() + estimatedTimeLeft);
-                    let estimatedArrivalDate = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).replace(/,\s+/, ', ');
-                    document.getElementById("estimated-arrival").innerText = `Estimated Arrival: ${estimatedArrivalDate}`;
-                }
+                let targetDate = new Date(Date.now() + estimatedTimeLeft);
+                let estimatedArrivalDate = targetDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).replace(/,\s+/, ', ');
+                document.getElementById("estimated-arrival").innerText = `Estimated Arrival: ${estimatedArrivalDate}`;
             } catch (error) {
                 console.error("Error fetching block data:", error);
-                document.getElementById("current-block").innerText = "Current Block: ERROR";
-                document.getElementById("blocks-left").innerText = "Blocks Left: UNKNOWN";
-                document.getElementById("estimated-arrival").innerText = "Estimated Arrival: UNKNOWN";
-                document.getElementById("countdown").innerText = "N/A";
             }
         }
 
-        function updateCountdown() {
-            function tick() {
-                let now = Date.now();
-                let adjustedTimeLeft = estimatedTimeLeft - (now - lastFetchTime);
-
-                let seconds = Math.floor(adjustedTimeLeft / 1000);
-                let days = Math.floor(seconds / (3600 * 24));
-                seconds %= 3600 * 24;
-                let hours = Math.floor(seconds / 3600);
-                seconds %= 3600;
-                let minutes = Math.floor(seconds / 60);
-                seconds %= 60;
-
-                document.getElementById("countdown").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-
-                if (adjustedTimeLeft > 0) {
-                    setTimeout(tick, 1000);
-                }
-            }
-            tick();
-        }
-
-        async function startCountdown() {
-            await fetchBlockData();
-            updateCountdown();
-            setInterval(fetchBlockData, 60000);
-        }
-
-        document.addEventListener("DOMContentLoaded", startCountdown);
-
-        // COPY BUTTON FUNCTIONALITY
         document.getElementById("copy-button").addEventListener("click", function() {
             let estimatedArrival = document.getElementById("estimated-arrival").innerText.split(": ")[1];
             let currentBlock = document.getElementById("current-block").innerText.split(": ")[1];
             let blocksLeft = document.getElementById("blocks-left").innerText.split(": ")[1];
 
-            let discordText = 
-```
+            let discordText = `
+\`\`\`
 #      ____  _____ __________⛏
 #     / __ \\/ ___//  _/ BLOCK /
 #    / /_/ /\\__ \\ / //  888888
 #   / _, _/___/ // // /___   
 #  /_/ |_|/____/___/\\____/    
 #
-#  Estimated Arrival: ${estimatedArrival}
-#  Current Block:  ${currentBlock}
-#  Blocks Left:  ${blocksLeft}
-```
-;
+# Estimated Arrival: ${estimatedArrival}
+# Current Block:  ${currentBlock}
+# Blocks Left:  ${blocksLeft}
+\`\`\`
+`;
 
             navigator.clipboard.writeText(discordText).then(() => {
-                alert("Copied to clipboard!");
+                let confirmation = document.getElementById("copy-confirmation");
+                confirmation.style.opacity = "1";
+                confirmation.style.transform = "translateY(-10px)";
+                setTimeout(() => {
+                    confirmation.style.opacity = "0";
+                    confirmation.style.transform = "translateY(0)";
+                }, 2000);
             });
         });
+
+        async function startCountdown() {
+            await fetchBlockData();
+            setInterval(fetchBlockData, 60000);
+        }
+
+        document.addEventListener("DOMContentLoaded", startCountdown);
     </script>
 </body>
 </html>
