@@ -71,14 +71,14 @@
             color: #AAAAAA;
             width: 100%;
             position: fixed;
-            bottom: 70px;
+            bottom: 90px; /* Adjusted to fit button */
             left: 0;
             text-align: center;
             z-index: 2;
         }
 
         #footer div {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-transform: uppercase;
         }
 
@@ -94,6 +94,22 @@
 
         #footer a:hover {
             color: #FF9900;
+        }
+
+        #copy-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 900;
+            color: #000000;
+            background-color: #FF9900;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        #copy-button:hover {
+            background-color: #E68900;
         }
 
         /* Restored Rune Background Visibility */
@@ -123,6 +139,7 @@
 
     <div id="footer">
         <div>UNOFFICIAL COUNTDOWN</div>
+        <button id="copy-button">COPY DATA FOR DISCORD</button>
         <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
     </div>
 
@@ -201,38 +218,30 @@
 
         document.addEventListener("DOMContentLoaded", startCountdown);
 
-        // **Smooth Rune Animation (No Jittering)**
-        const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
-        const canvas = document.getElementById("runeCanvas");
-        const ctx = canvas.getContext("2d");
+        // COPY BUTTON FUNCTIONALITY
+        document.getElementById("copy-button").addEventListener("click", function() {
+            let estimatedArrival = document.getElementById("estimated-arrival").innerText.split(": ")[1];
+            let currentBlock = document.getElementById("current-block").innerText.split(": ")[1];
+            let blocksLeft = document.getElementById("blocks-left").innerText.split(": ")[1];
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+            let discordText = 
+```
+#      ____  _____ __________⛏
+#     / __ \\/ ___//  _/ BLOCK /
+#    / /_/ /\\__ \\ / //  888888
+#   / _, _/___/ // // /___   
+#  /_/ |_|/____/___/\\____/    
+#
+#  Estimated Arrival: ${estimatedArrival}
+#  Current Block:  ${currentBlock}
+#  Blocks Left:  ${blocksLeft}
+```
+;
 
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-
-        let runeSymbols = Array.from({ length: 50 }, () => ({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            rune: runes[Math.floor(Math.random() * runes.length)],
-            speed: Math.random() * 1.5 + 0.5,
-        }));
-
-        function drawRunes() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-            ctx.font = "30px Courier New";
-            runeSymbols.forEach(r => {
-                ctx.fillText(r.rune, r.x, r.y);
-                r.y = (r.y + r.speed) % canvas.height;
+            navigator.clipboard.writeText(discordText).then(() => {
+                alert("Copied to clipboard!");
             });
-            requestAnimationFrame(drawRunes);
-        }
-
-        drawRunes();
+        });
     </script>
 </body>
 </html>
