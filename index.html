@@ -82,22 +82,16 @@
       left: 0;
       text-align: center;
       z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
+    /* "UNOFFICIAL COUNTDOWN" line */
     #footer div {
-      margin-bottom: 10px;
       text-transform: uppercase;
-      font-size: 110%; /* "UNOFFICIAL COUNTDOWN" slightly bigger */
-    }
-    #footer a {
-      text-decoration: none;
-      color: #4D4C4C;
-      font-size: 18px;
-      transition: color 0.3s ease-in-out;
-      display: block;
-      margin-top: 15px; /* More space below the button */
-    }
-    #footer a:hover {
-      color: #FF9900;
+      font-size: 110%;
+      margin: 12px 0; /* Equal vertical spacing above & below */
     }
 
     /* COPY DATA Button */
@@ -113,8 +107,21 @@
       transition: color 0.3s ease-in-out;
       font-family: inherit;
       text-shadow: 0 0 5px rgba(255, 153, 0, 0.5);
+      margin: 12px 0; /* Equal spacing around the button */
     }
     #copy-button:hover {
+      color: #FF9900;
+    }
+
+    /* 8-21.com Link */
+    #footer a {
+      text-decoration: none;
+      color: #4D4C4C;
+      font-size: 18px;
+      transition: color 0.3s ease-in-out;
+      margin: 12px 0; /* Equal vertical spacing */
+    }
+    #footer a:hover {
       color: #FF9900;
     }
 
@@ -168,10 +175,8 @@
   <!-- Footer -->
   <div id="footer">
     <div>UNOFFICIAL COUNTDOWN</div>
-    <button id="copy-button"> & PASTE IN DISCORD</button>
-    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">
-      8-21.com
-    </a>
+    <button id="copy-button">COPY DATA & PASTE IN DISCORD</button>
+    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
   </div>
 
   <!-- DATA COPIED Feedback -->
@@ -188,24 +193,23 @@
     let estimatedTimeLeft = 0;
     let lastFetchTime = Date.now();
 
-    // 1) Fetch the block data
+    // Fetch block data
     async function fetchBlockData() {
       try {
         const response = await fetch('https://mempool.space/api/blocks/tip/height');
         const currentHeight = await response.json();
 
-        // Update "Current Block"
+        // Current Block
         document.getElementById("current-block").innerText = `Current Block: ${currentHeight}`;
 
-        // Blocks left
+        // Blocks Left
         const blocksLeft = targetBlock - currentHeight;
         document.getElementById("blocks-left").innerText = `Blocks Left: ${blocksLeft}`;
 
-        // Estimated time left
+        // Time & Date calculations
         estimatedTimeLeft = blocksLeft * avgBlockTime;
         lastFetchTime = Date.now();
 
-        // Estimated arrival date
         const targetDate = new Date(Date.now() + estimatedTimeLeft);
         const estimatedArrivalDate = targetDate
           .toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -217,7 +221,7 @@
       }
     }
 
-    // 2) Update the countdown timer display
+    // Update the countdown timer
     function updateCountdown() {
       const now = Date.now();
       const timeElapsed = now - lastFetchTime;
@@ -237,14 +241,14 @@
         `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    // 3) Copy data (with "DATA COPIED" fade in/out)
+    // Copy data to Discord, show "DATA COPIED"
     const copyButton = document.getElementById("copy-button");
     const copyFeedback = document.getElementById("copy-feedback");
 
     copyButton.addEventListener("click", () => {
-      const estArr   = document.getElementById("estimated-arrival").innerText.split(": ")[1];
-      const currBlk  = document.getElementById("current-block").innerText.split(": ")[1];
-      const blocksL  = document.getElementById("blocks-left").innerText.split(": ")[1];
+      const estArr  = document.getElementById("estimated-arrival").innerText.split(": ")[1];
+      const currBlk = document.getElementById("current-block").innerText.split(": ")[1];
+      const blocksL = document.getElementById("blocks-left").innerText.split(": ")[1];
 
       const discordText = `
 \`\`\`
@@ -264,7 +268,6 @@
         .then(() => {
           // Fade in "DATA COPIED"
           copyFeedback.style.opacity = 1;
-
           // Fade out after 1 second
           setTimeout(() => {
             copyFeedback.style.opacity = 0;
@@ -273,10 +276,10 @@
         .catch(err => console.error("Clipboard error:", err));
     });
 
-    // 4) Initial fetch & intervals
+    // Initial data + intervals
     fetchBlockData();
-    setInterval(fetchBlockData, 10 * 60 * 1000); // Refresh block data every 10 minutes
-    setInterval(updateCountdown, 1000);          // Update countdown every second
+    setInterval(fetchBlockData, 10 * 60 * 1000); // Refresh block data every 10 min
+    setInterval(updateCountdown, 1000);          // Countdown updates every second
 
     /**
      * ----------------------
@@ -286,11 +289,9 @@
     const canvas = document.getElementById("runeCanvas");
     const ctx = canvas.getContext("2d");
     const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
-
-    // 50 runes drifting downward
     let runeSymbols = [];
 
-    // Resize the canvas to the window
+    // Resize the canvas
     function resizeCanvas() {
       canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -308,7 +309,7 @@
       });
     }
 
-    // Animate the runes downward
+    // Animate runes downward
     function drawRunes() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
@@ -317,9 +318,7 @@
       runeSymbols.forEach(runeObj => {
         ctx.fillText(runeObj.rune, runeObj.x, runeObj.y);
         runeObj.y += runeObj.speed;
-        if (runeObj.y > canvas.height) {
-          runeObj.y = 0;
-        }
+        if (runeObj.y > canvas.height) runeObj.y = 0;
       });
 
       requestAnimationFrame(drawRunes);
