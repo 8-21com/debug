@@ -18,7 +18,7 @@
     h2 {
       font-size: 54px;
       margin-top: 50px;
-      margin-bottom: 20px;
+      margin-bottom: 5px; /* We'll reduce to make room for new line below */
       color: #CCCCCC;
       text-transform: uppercase;
       letter-spacing: 2px;
@@ -27,13 +27,22 @@
       z-index: 2;
     }
 
+    /* UNOFFICIAL COUNTDOWN LINE (moved from footer) */
+    #unofficial-countdown {
+      font-size: 18px;      /* same as previous footer text */
+      font-weight: 900;
+      color: #AAAAAA;
+      text-transform: uppercase;
+      margin-bottom: 20px;  /* spacing before the countdown container */
+    }
+
     /* Countdown Container */
     #countdown-container {
       display: inline-block;
       padding: 20px;
       border: 1px solid #4D4C4C;
       background-color: #000000;
-      margin-top: 20px;
+      margin-top: 0px;
       width: 300px;
       text-align: center;
       position: relative;
@@ -71,7 +80,7 @@
       100% { opacity: 0.7; }
     }
 
-    /* Footer */
+    /* Footer Container */
     #footer {
       font-size: 18px;
       font-weight: 900;
@@ -85,12 +94,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    #footer div {
-      text-transform: uppercase;
-      font-size: 110%;
-      margin: 12px 0; /* Equal vertical spacing above & below */
     }
 
     /* COPY DATA Button */
@@ -112,15 +115,15 @@
       color: #FF9900;
     }
 
-    /* DATA COPIED FEEDBACK, in footer, below button */
+    /* DATA COPIED FEEDBACK (same font size as copy-button) */
     #copy-feedback {
-      font-size: 16px;       /* same as "Blocks Left" */
+      font-size: 16px;       /* same as #copy-button now */
       font-weight: 900;
-      color: #888888;        /* same color as "Blocks Left" */
+      color: #888888;
       text-transform: uppercase;
       opacity: 0;            /* start invisible */
       transition: opacity 0.4s ease-in-out;
-      margin: 0;             /* we'll use the margin from #footer a */
+      margin: 0;
     }
 
     /* 8-21.com Link */
@@ -150,11 +153,14 @@
 </head>
 <body>
 
-  <!-- Background Runes -->
+  <!-- Runes Background -->
   <canvas id="runeCanvas"></canvas>
 
   <!-- Title -->
   <h2>Block 888,888</h2>
+
+  <!-- Moved "UNOFFICIAL COUNTDOWN" below title -->
+  <div id="unofficial-countdown">UNOFFICIAL COUNTDOWN</div>
 
   <!-- Countdown Container -->
   <div id="countdown-container">
@@ -168,12 +174,9 @@
 
   <!-- Footer -->
   <div id="footer">
-    <div>UNOFFICIAL COUNTDOWN</div>
     <button id="copy-button">COPY DATA & PASTE IN DISCORD</button>
     <div id="copy-feedback">DATA COPIED</div>
-    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">
-      8-21.com
-    </a>
+    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
   </div>
 
   <script>
@@ -187,7 +190,7 @@
     let estimatedTimeLeft = 0;
     let lastFetchTime = Date.now();
 
-    // Fetch block data
+    // Fetch the block data
     async function fetchBlockData() {
       try {
         const response = await fetch('https://mempool.space/api/blocks/tip/height');
@@ -235,7 +238,7 @@
         `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    // Copy data to Discord, show "DATA COPIED"
+    // Copy data to Discord & show "DATA COPIED"
     const copyButton = document.getElementById("copy-button");
     const copyFeedback = document.getElementById("copy-feedback");
 
@@ -270,7 +273,7 @@
         .catch(err => console.error("Clipboard error:", err));
     });
 
-    // Initial data + intervals
+    // Initial data & intervals
     fetchBlockData();
     setInterval(fetchBlockData, 10 * 60 * 1000); // Refresh block data every 10 min
     setInterval(updateCountdown, 1000);          // Countdown updates every second
