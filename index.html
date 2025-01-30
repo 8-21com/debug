@@ -87,7 +87,6 @@
       align-items: center;
     }
 
-    /* "UNOFFICIAL COUNTDOWN" line */
     #footer div {
       text-transform: uppercase;
       font-size: 110%;
@@ -107,10 +106,21 @@
       transition: color 0.3s ease-in-out;
       font-family: inherit;
       text-shadow: 0 0 5px rgba(255, 153, 0, 0.5);
-      margin: 12px 0; /* Equal spacing around the button */
+      margin: 12px 0; /* equal spacing around the button */
     }
     #copy-button:hover {
       color: #FF9900;
+    }
+
+    /* DATA COPIED FEEDBACK, in footer, below button */
+    #copy-feedback {
+      font-size: 16px;       /* same as "Blocks Left" */
+      font-weight: 900;
+      color: #888888;        /* same color as "Blocks Left" */
+      text-transform: uppercase;
+      opacity: 0;            /* start invisible */
+      transition: opacity 0.4s ease-in-out;
+      margin: 0;             /* we'll use the margin from #footer a */
     }
 
     /* 8-21.com Link */
@@ -136,22 +146,6 @@
       opacity: 0.28;
       z-index: 1;
     }
-
-    /* DATA COPIED FEEDBACK */
-    #copy-feedback {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 16px;       /* same as "Blocks Left" */
-      font-weight: 900;
-      color: #888888;        /* same color as "Blocks Left" */
-      text-transform: uppercase;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease-in-out;
-      z-index: 9999;         /* above everything else */
-    }
   </style>
 </head>
 <body>
@@ -176,11 +170,11 @@
   <div id="footer">
     <div>UNOFFICIAL COUNTDOWN</div>
     <button id="copy-button">COPY DATA & PASTE IN DISCORD</button>
-    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
+    <div id="copy-feedback">DATA COPIED</div>
+    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">
+      8-21.com
+    </a>
   </div>
-
-  <!-- DATA COPIED Feedback -->
-  <div id="copy-feedback">DATA COPIED</div>
 
   <script>
     /**
