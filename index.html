@@ -78,7 +78,7 @@
       color: #AAAAAA;
       width: 100%;
       position: fixed;
-      bottom: 50px; /* Moved up/down as needed */
+      bottom: 50px;
       left: 0;
       text-align: center;
       z-index: 2;
@@ -129,6 +129,22 @@
       opacity: 0.28;
       z-index: 1;
     }
+
+    /* DATA COPIED FEEDBACK */
+    #copy-feedback {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;       /* same as "Blocks Left" */
+      font-weight: 900;
+      color: #888888;        /* same color as "Blocks Left" */
+      text-transform: uppercase;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease-in-out;
+      z-index: 9999;         /* above everything else */
+    }
   </style>
 </head>
 <body>
@@ -157,6 +173,9 @@
       8-21.com
     </a>
   </div>
+
+  <!-- DATA COPIED Feedback -->
+  <div id="copy-feedback">DATA COPIED</div>
 
   <script>
     /**
@@ -218,8 +237,11 @@
         `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    // 3) Copy data (no checkmark)
-    document.getElementById("copy-button").addEventListener("click", () => {
+    // 3) Copy data (with "DATA COPIED" fade in/out)
+    const copyButton = document.getElementById("copy-button");
+    const copyFeedback = document.getElementById("copy-feedback");
+
+    copyButton.addEventListener("click", () => {
       const estArr   = document.getElementById("estimated-arrival").innerText.split(": ")[1];
       const currBlk  = document.getElementById("current-block").innerText.split(": ")[1];
       const blocksL  = document.getElementById("blocks-left").innerText.split(": ")[1];
@@ -239,6 +261,15 @@
       `.trim();
 
       navigator.clipboard.writeText(discordText)
+        .then(() => {
+          // Fade in "DATA COPIED"
+          copyFeedback.style.opacity = 1;
+
+          // Fade out after 1 second
+          setTimeout(() => {
+            copyFeedback.style.opacity = 0;
+          }, 1000);
+        })
         .catch(err => console.error("Clipboard error:", err));
     });
 
@@ -255,6 +286,7 @@
     const canvas = document.getElementById("runeCanvas");
     const ctx = canvas.getContext("2d");
     const runes = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
+
     // 50 runes drifting downward
     let runeSymbols = [];
 
@@ -285,7 +317,9 @@
       runeSymbols.forEach(runeObj => {
         ctx.fillText(runeObj.rune, runeObj.x, runeObj.y);
         runeObj.y += runeObj.speed;
-        if (runeObj.y > canvas.height) runeObj.y = 0;
+        if (runeObj.y > canvas.height) {
+          runeObj.y = 0;
+        }
       });
 
       requestAnimationFrame(drawRunes);
