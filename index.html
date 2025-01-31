@@ -15,7 +15,7 @@
       overflow-x: hidden;
     }
 
-    /* Title: Block 888,888 */
+    /* Title */
     h2 {
       font-size: 54px;
       margin-top: 50px;
@@ -48,6 +48,8 @@
       position: relative;
       z-index: 2;
     }
+
+    /* Countdown Text */
     #countdown {
       font-size: 32px;
       font-weight: 900;
@@ -77,7 +79,7 @@
       100% { opacity: 0.7; }
     }
 
-    /* Footer (copy button, data-copied message, link) */
+    /* Footer */
     #footer {
       font-size: 18px;
       font-weight: 900;
@@ -97,12 +99,12 @@
       font-weight: 900;
       color: #888888;
       text-transform: uppercase;
-      opacity: 0; 
+      opacity: 0;
       transition: opacity 0.4s ease-in-out;
       margin-bottom: 10px;
     }
     #copy-button {
-      padding: 10px 20px; /* Extra padding */
+      padding: 10px 20px; 
       font-size: 16px; 
       font-weight: 900;
       color: #888888;
@@ -141,7 +143,7 @@
       z-index: 1;
     }
 
-    /* Single 8-Ball Follower */
+    /* Single 8-Ball */
     #eight-ball {
       position: fixed;
       font-size: 40px;
@@ -151,54 +153,55 @@
   </style>
 </head>
 <body>
-  <!-- Downward-drifting runes background -->
+  <!-- Runes background -->
   <canvas id="runeCanvas"></canvas>
 
-  <!-- Title & Subtitle -->
+  <!-- Title -->
   <h2>Block 888,888</h2>
   <div id="unofficial-countdown">UNOFFICIAL COUNTDOWN</div>
 
-  <!-- Countdown Container -->
+  <!-- Countdown container -->
   <div id="countdown-container">
     <div id="countdown">Loading...</div>
   </div>
 
-  <!-- Info lines: Estimate, Current Block, Blocks Left -->
+  <!-- Info lines -->
   <div id="estimate">Estimate: Calculating...</div>
   <div id="current-block">Current Block: Fetching...</div>
   <div id="blocks-left">Blocks Left: Calculating...</div>
 
-  <!-- Footer & Copy Data -->
+  <!-- Footer -->
   <div id="footer">
     <div id="copy-feedback">DATA COPIED</div>
     <button id="copy-button">COPY TO CLIPBOARD</button>
-    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
+    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">
+      8-21.com
+    </a>
   </div>
 
-  <!-- The single 8-Ball emoji that slowly follows cursor or drifts down -->
+  <!-- Single 8-Ball -->
   <div id="eight-ball">🎱</div>
 
   <script>
     /**
-     * ---------------------------
-     * BLOCK DATA + COUNTDOWN LOGIC
-     * ---------------------------
+     * BLOCK DATA + COUNTDOWN
      */
     const targetBlock  = 888888;
-    const avgBlockTime = 10 * 60 * 1000; // 10 minutes in ms
+    const avgBlockTime = 10 * 60 * 1000; // 10 min in ms
     let estimatedTimeLeft = 0;
     let lastFetchTime = Date.now();
 
+    // 1) Fetch from mempool.space
     async function fetchBlockData() {
       try {
         const res = await fetch("https://mempool.space/api/blocks/tip/height");
         const currentHeight = await res.json();
 
-        document.getElementById("current-block").innerText
+        document.getElementById("current-block").innerText 
           = `Current Block: ${currentHeight}`;
 
         const blocksLeft = targetBlock - currentHeight;
-        document.getElementById("blocks-left").innerText
+        document.getElementById("blocks-left").innerText 
           = `Blocks Left: ${blocksLeft}`;
 
         estimatedTimeLeft = blocksLeft * avgBlockTime;
@@ -208,20 +211,21 @@
         const estDate = targetDate
           .toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
           .replace(/,\s+/, ", ");
-        document.getElementById("estimate").innerText
+        document.getElementById("estimate").innerText 
           = `Estimate: ${estDate}`;
       } catch (err) {
         console.error("Error fetching block data:", err);
       }
     }
 
+    // 2) Countdown updates every second
     function updateCountdown() {
       const now = Date.now();
       const timeElapsed = now - lastFetchTime;
       const timeLeft = estimatedTimeLeft - timeElapsed;
 
       if (timeLeft <= 0) {
-        document.getElementById("countdown").innerText
+        document.getElementById("countdown").innerText 
           = "Block 888,888 has been reached!";
         return;
       }
@@ -231,27 +235,18 @@
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-      document.getElementById("countdown").innerText
+      document.getElementById("countdown").innerText 
         = `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    // Initialization
-    fetchBlockData();
-    setInterval(fetchBlockData, 10 * 60 * 1000); // fetch every 10 min
-    setInterval(updateCountdown, 1000);          // update countdown every second
-
-    /**
-     * ---------------------------
-     *  COPY DATA (WITH ASCII ART)
-     * ---------------------------
-     */
+    // 3) Copy data (with ASCII art)
     const copyFeedback = document.getElementById("copy-feedback");
     document.getElementById("copy-button").addEventListener("click", () => {
-      const est   = document.getElementById("estimate").innerText.split(": ")[1];
-      const cBlk  = document.getElementById("current-block").innerText.split(": ")[1];
-      const bLeft = document.getElementById("blocks-left").innerText.split(": ")[1];
+      const est  = document.getElementById("estimate").innerText.split(": ")[1];
+      const cBlk = document.getElementById("current-block").innerText.split(": ")[1];
+      const bLft = document.getElementById("blocks-left").innerText.split(": ")[1];
 
-      const discordText = `
+      const asciiArt = `
 \`\`\`
 #      ____  _____ __________⛏
 #     / __ \\/ ___//  _/ BLOCK /
@@ -261,32 +256,32 @@
 #
 #  Estimate: ${est}
 #  Current Block:  ${cBlk}
-#  Blocks Left:  ${bLeft}
+#  Blocks Left:  ${bLft}
 \`\`\`
       `.trim();
 
-      navigator.clipboard.writeText(discordText)
+      navigator.clipboard.writeText(asciiArt)
         .then(() => {
           copyFeedback.style.opacity = 1;
-          setTimeout(() => {
-            copyFeedback.style.opacity = 0;
-          }, 1000);
+          setTimeout(() => { copyFeedback.style.opacity = 0; }, 1000);
         })
         .catch(err => console.error("Clipboard error:", err));
     });
 
+    // 4) Initialize data & intervals
+    fetchBlockData();
+    setInterval(fetchBlockData, 10 * 60 * 1000);
+    setInterval(updateCountdown, 1000);
+
     /**
-     * ---------------------------
-     *  DOWNWARD RUNES BACKGROUND
-     * ---------------------------
+     * DOWNWARD RUNES BACKGROUND
      */
     const canvas = document.getElementById("runeCanvas");
     const ctx    = canvas.getContext("2d");
     const runes  = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
-
     function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height= window.innerHeight;
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
@@ -305,63 +300,95 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
       ctx.font = "30px Courier New";
-
-      runeSymbols.forEach(r => {
-        ctx.fillText(r.rune, r.x, r.y);
-        r.y += r.speed;
-        if (r.y > canvas.height) {
-          r.y = 0;
-        }
+      runeSymbols.forEach(obj => {
+        ctx.fillText(obj.rune, obj.x, obj.y);
+        obj.y += obj.speed;
+        if (obj.y > canvas.height) { obj.y = 0; }
       });
       requestAnimationFrame(drawRunes);
     }
     drawRunes();
 
     /**
-     * ---------------------------
-     *  SINGLE 8-BALL FOLLOWER
-     * ---------------------------
+     * SINGLE 8-BALL BEHAVIOR
      */
     const eightBall = document.getElementById("eight-ball");
-    let cursorX     = window.innerWidth * 0.5;
-    let cursorY     = window.innerHeight * 0.2; // start somewhere near top
-    let ballX       = cursorX;
-    let ballY       = cursorY;
-    const lerpSpeed = 0.07; // how fast it follows
+    // We'll do a velocity-based approach:
+    let ballX = window.innerWidth * 0.5;
+    let ballY = window.innerHeight * 0.2;
+    let vx    = 0;
+    let vy    = 0;
 
-    let lastMouseMove = Date.now();
+    // The 8-ball has a "gravity" pulling it downward slowly
+    const gravity     = 0.02;   // how quickly it falls
+    const friction    = 0.98;   // friction to dampen velocity
+    const turnFactor  = 0.02;   // how strongly it turns toward cursor
+    const idleTime    = 800;    // how many ms until "idle"
 
-    document.addEventListener("mousemove", (e) => {
-      cursorX       = e.clientX;
-      cursorY       = e.clientY;
-      lastMouseMove = Date.now();
+    let lastMoveTime  = Date.now();
+    let mouseX        = ballX;
+    let mouseY        = ballY;
+
+    // Track user’s mouse
+    document.addEventListener("mousemove", e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      lastMoveTime = Date.now();
     });
 
-    // If user stops moving the mouse for 1 second, the 8-ball slowly drifts downward
+    // Animate the 8-ball
     function animateBall() {
-      // Check idle time
-      const now = Date.now();
-      if (now - lastMouseMove > 1000) {
-        // drift down slowly
-        ballY += 0.2; 
+      const now  = Date.now();
+      const idle = (now - lastMoveTime > idleTime);
+
+      if (!idle) {
+        // Turn the velocity a bit toward the mouse
+        const dx = mouseX - ballX;
+        const dy = mouseY - ballY;
+        vx += dx * turnFactor;
+        vy += dy * turnFactor;
       } else {
-        // follow cursor
-        ballX += (cursorX - ballX) * lerpSpeed;
-        ballY += (cursorY - ballY) * lerpSpeed;
+        // Add a slight "gravity" pull downward
+        vy += gravity;
       }
 
-      // don't let the 8-ball fully exit the bottom
-      const maxY = window.innerHeight - 40; // ball size is ~40
-      if (ballY > maxY) ballY = maxY;
+      // Apply friction
+      vx *= friction;
+      vy *= friction;
 
       // Update position
+      ballX += vx;
+      ballY += vy;
+
+      // Keep it on screen (top-left corners)
+      const ballSize = 40; // ~ font-size
+      // Right boundary
+      if (ballX > window.innerWidth - ballSize) {
+        ballX = window.innerWidth - ballSize;
+        vx    = -vx; // bounce horizontally
+      }
+      // Left boundary
+      if (ballX < 0) {
+        ballX = 0;
+        vx    = -vx;
+      }
+      // Bottom boundary
+      if (ballY > window.innerHeight - ballSize) {
+        ballY = window.innerHeight - ballSize;
+        vy    = -vy * 0.5; // bounce up a bit
+      }
+      // Top boundary
+      if (ballY < 0) {
+        ballY = 0;
+        vy    = -vy;
+      }
+
+      // Update 8-ball transform
       eightBall.style.transform = `translate(${ballX}px, ${ballY}px)`;
+
       requestAnimationFrame(animateBall);
     }
     animateBall();
   </script>
-
-  <!-- Single 8-Ball (only one) -->
-  <div id="eight-ball">🎱</div>
 </body>
 </html>
