@@ -48,8 +48,6 @@
       position: relative;
       z-index: 2;
     }
-
-    /* Countdown Text */
     #countdown {
       font-size: 32px;
       font-weight: 900;
@@ -94,21 +92,17 @@
       flex-direction: column;
       align-items: center;
     }
-
-    /* DATA COPIED line (above the button) */
     #copy-feedback {
       font-size: 16px; 
       font-weight: 900;
       color: #888888;
       text-transform: uppercase;
-      opacity: 0;
+      opacity: 0; 
       transition: opacity 0.4s ease-in-out;
       margin-bottom: 10px;
     }
-
-    /* COPY DATA Button (with extra padding) */
     #copy-button {
-      padding: 10px 20px; /* Extra padding for aesthetics */
+      padding: 10px 20px; /* Extra padding */
       font-size: 16px; 
       font-weight: 900;
       color: #888888;
@@ -124,8 +118,6 @@
     #copy-button:hover {
       color: #FF9900;
     }
-
-    /* 8-21.com link */
     #footer a {
       text-decoration: none;
       color: #4D4C4C;
@@ -149,26 +141,21 @@
       z-index: 1;
     }
 
-    /* 8-Ball Emoji Follower */
+    /* Single 8-Ball Follower */
     #eight-ball {
       position: fixed;
-      left: 0;
-      top: 0;
-      font-size: 40px;     /* size of the emoji */
-      pointer-events: none;/* ignore pointer so no interference */
-      z-index: 9999;       /* on top of everything else */
-      transform: translate(-50%, -50%); /* anchor center if desired */
+      font-size: 40px;
+      pointer-events: none;
+      z-index: 9999;
     }
   </style>
 </head>
 <body>
-  <!-- Background Runes -->
+  <!-- Downward-drifting runes background -->
   <canvas id="runeCanvas"></canvas>
 
-  <!-- Title -->
+  <!-- Title & Subtitle -->
   <h2>Block 888,888</h2>
-
-  <!-- "UNOFFICIAL COUNTDOWN" below title -->
   <div id="unofficial-countdown">UNOFFICIAL COUNTDOWN</div>
 
   <!-- Countdown Container -->
@@ -176,21 +163,19 @@
     <div id="countdown">Loading...</div>
   </div>
 
-  <!-- Info Lines: Estimate, Current Block, Blocks Left -->
+  <!-- Info lines: Estimate, Current Block, Blocks Left -->
   <div id="estimate">Estimate: Calculating...</div>
   <div id="current-block">Current Block: Fetching...</div>
   <div id="blocks-left">Blocks Left: Calculating...</div>
 
-  <!-- Footer -->
+  <!-- Footer & Copy Data -->
   <div id="footer">
     <div id="copy-feedback">DATA COPIED</div>
     <button id="copy-button">COPY TO CLIPBOARD</button>
-    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">
-      8-21.com
-    </a>
+    <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">8-21.com</a>
   </div>
 
-  <!-- The 8-Ball Emoji that lags behind the cursor -->
+  <!-- The single 8-Ball emoji that slowly follows cursor or drifts down -->
   <div id="eight-ball">🎱</div>
 
   <script>
@@ -199,76 +184,37 @@
      * BLOCK DATA + COUNTDOWN LOGIC
      * ---------------------------
      */
-    const targetBlock     = 888888;
-    const avgBlockTime    = 10 * 60 * 1000; // 10 minutes
-    let   estimatedTimeLeft = 0;
-    let   lastFetchTime   = Date.now();
+    const targetBlock  = 888888;
+    const avgBlockTime = 10 * 60 * 1000; // 10 minutes in ms
+    let estimatedTimeLeft = 0;
+    let lastFetchTime = Date.now();
 
-    // 1) Fetch from mempool.space
     async function fetchBlockData() {
       try {
         const res = await fetch("https://mempool.space/api/blocks/tip/height");
         const currentHeight = await res.json();
 
-        // Current Block
         document.getElementById("current-block").innerText
           = `Current Block: ${currentHeight}`;
 
-        // Blocks Left
         const blocksLeft = targetBlock - currentHeight;
         document.getElementById("blocks-left").innerText
           = `Blocks Left: ${blocksLeft}`;
 
-        // Time & Date
         estimatedTimeLeft = blocksLeft * avgBlockTime;
         lastFetchTime     = Date.now();
 
         const targetDate = new Date(Date.now() + estimatedTimeLeft);
-        const estimateDate = targetDate
+        const estDate = targetDate
           .toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
           .replace(/,\s+/, ", ");
-
-        // Estimate
         document.getElementById("estimate").innerText
-          = `Estimate: ${estimateDate}`;
+          = `Estimate: ${estDate}`;
       } catch (err) {
         console.error("Error fetching block data:", err);
       }
     }
 
-    // 2) Copy data with ASCII art
-    const copyFeedback = document.getElementById("copy-feedback");
-    document.getElementById("copy-button").addEventListener("click", () => {
-      const est  = document.getElementById("estimate").innerText.split(": ")[1];
-      const currBlk   = document.getElementById("current-block").innerText.split(": ")[1];
-      const blocksLeft= document.getElementById("blocks-left").innerText.split(": ")[1];
-
-      // ASCII art in the copied text
-      const discordText = `
-\`\`\`
-#      ____  _____ __________⛏
-#     / __ \\/ ___//  _/ BLOCK /
-#    / /_/ /\\__ \\ / //  888888
-#   / _, _/___/ // // /___
-#  /_/ |_|/____/___/\\____/
-#
-#  Estimate: ${est}
-#  Current Block:  ${currBlk}
-#  Blocks Left:  ${blocksLeft}
-\`\`\`
-      `.trim();
-
-      navigator.clipboard.writeText(discordText)
-        .then(() => {
-          copyFeedback.style.opacity = 1; 
-          setTimeout(() => {
-            copyFeedback.style.opacity = 0;
-          }, 1000);
-        })
-        .catch(err => console.error("Clipboard error:", err));
-    });
-
-    // 3) Update the countdown timer every second
     function updateCountdown() {
       const now = Date.now();
       const timeElapsed = now - lastFetchTime;
@@ -285,14 +231,49 @@
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-      document.getElementById("countdown").innerText 
+      document.getElementById("countdown").innerText
         = `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
-    // 4) Initialize data & intervals
+    // Initialization
     fetchBlockData();
-    setInterval(fetchBlockData, 10 * 60 * 1000); // Refresh block data every 10 minutes
-    setInterval(updateCountdown, 1000);          // Update countdown every second
+    setInterval(fetchBlockData, 10 * 60 * 1000); // fetch every 10 min
+    setInterval(updateCountdown, 1000);          // update countdown every second
+
+    /**
+     * ---------------------------
+     *  COPY DATA (WITH ASCII ART)
+     * ---------------------------
+     */
+    const copyFeedback = document.getElementById("copy-feedback");
+    document.getElementById("copy-button").addEventListener("click", () => {
+      const est   = document.getElementById("estimate").innerText.split(": ")[1];
+      const cBlk  = document.getElementById("current-block").innerText.split(": ")[1];
+      const bLeft = document.getElementById("blocks-left").innerText.split(": ")[1];
+
+      const discordText = `
+\`\`\`
+#      ____  _____ __________⛏
+#     / __ \\/ ___//  _/ BLOCK /
+#    / /_/ /\\__ \\ / //  888888
+#   / _, _/___/ // // /___
+#  /_/ |_|/____/___/\\____/
+#
+#  Estimate: ${est}
+#  Current Block:  ${cBlk}
+#  Blocks Left:  ${bLeft}
+\`\`\`
+      `.trim();
+
+      navigator.clipboard.writeText(discordText)
+        .then(() => {
+          copyFeedback.style.opacity = 1;
+          setTimeout(() => {
+            copyFeedback.style.opacity = 0;
+          }, 1000);
+        })
+        .catch(err => console.error("Clipboard error:", err));
+    });
 
     /**
      * ---------------------------
@@ -302,17 +283,15 @@
     const canvas = document.getElementById("runeCanvas");
     const ctx    = canvas.getContext("2d");
     const runes  = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
-    let runeSymbols = [];
 
-    // Fit the canvas to the window
     function resizeCanvas() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      canvas.height= window.innerHeight;
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    // Create 50 runes drifting down
+    let runeSymbols = [];
     for (let i = 0; i < 50; i++) {
       runeSymbols.push({
         x: Math.random() * canvas.width,
@@ -327,47 +306,62 @@
       ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
       ctx.font = "30px Courier New";
 
-      runeSymbols.forEach(obj => {
-        ctx.fillText(obj.rune, obj.x, obj.y);
-        obj.y += obj.speed;
-        if (obj.y > canvas.height) {
-          obj.y = 0;
+      runeSymbols.forEach(r => {
+        ctx.fillText(r.rune, r.x, r.y);
+        r.y += r.speed;
+        if (r.y > canvas.height) {
+          r.y = 0;
         }
       });
-
       requestAnimationFrame(drawRunes);
     }
     drawRunes();
 
     /**
      * ---------------------------
-     *  8-BALL EMOJI FOLLOWER
+     *  SINGLE 8-BALL FOLLOWER
      * ---------------------------
      */
     const eightBall = document.getElementById("eight-ball");
-    let cursorX = 0, cursorY = 0;     // target/cursor coords
-    let ballX   = 0, ballY   = 0;     // current ball coords
-    const lerpSpeed = 0.07;          // speed factor (0.07 => slow follow)
+    let cursorX     = window.innerWidth * 0.5;
+    let cursorY     = window.innerHeight * 0.2; // start somewhere near top
+    let ballX       = cursorX;
+    let ballY       = cursorY;
+    const lerpSpeed = 0.07; // how fast it follows
 
-    // Track the latest mouse position
+    let lastMouseMove = Date.now();
+
     document.addEventListener("mousemove", (e) => {
-      cursorX = e.clientX;
-      cursorY = e.clientY;
+      cursorX       = e.clientX;
+      cursorY       = e.clientY;
+      lastMouseMove = Date.now();
     });
 
-    // Animate the 8-ball with a "lag" effect
+    // If user stops moving the mouse for 1 second, the 8-ball slowly drifts downward
     function animateBall() {
-      // Move ballX/ballY fractionally towards cursorX/cursorY
-      ballX += (cursorX - ballX) * lerpSpeed;
-      ballY += (cursorY - ballY) * lerpSpeed;
-      // Update style transform
+      // Check idle time
+      const now = Date.now();
+      if (now - lastMouseMove > 1000) {
+        // drift down slowly
+        ballY += 0.2; 
+      } else {
+        // follow cursor
+        ballX += (cursorX - ballX) * lerpSpeed;
+        ballY += (cursorY - ballY) * lerpSpeed;
+      }
+
+      // don't let the 8-ball fully exit the bottom
+      const maxY = window.innerHeight - 40; // ball size is ~40
+      if (ballY > maxY) ballY = maxY;
+
+      // Update position
       eightBall.style.transform = `translate(${ballX}px, ${ballY}px)`;
       requestAnimationFrame(animateBall);
     }
     animateBall();
   </script>
 
-  <!-- 8-Ball Emoji Div -->
+  <!-- Single 8-Ball (only one) -->
   <div id="eight-ball">🎱</div>
 </body>
 </html>
