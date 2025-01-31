@@ -105,10 +105,10 @@
       margin-bottom: 10px;
     }
 
-    /* Copy Button: Now "COPY TO CLIPBOARD" */
+    /* Copy Button */
     #copy-button {
-      padding: 10px 20px; /* Extra padding for aesthetics */
-      font-size: 16px; 
+      padding: 10px 20px;
+      font-size: 16px;
       font-weight: 900;
       color: #888888;
       background: none;
@@ -169,83 +169,67 @@
   <!-- Footer -->
   <div id="footer">
     <div id="copy-feedback">DATA COPIED</div>
-    <button id="copy-button">COPY TO CLIPBOARD</button>
+    <button id="copy-button">Copy to Clipboard</button>
     <a href="https://docs.8-21.com/the-history-of-rsic/project-updates#block-888-888" target="_self">
       8-21.com
     </a>
   </div>
 
   <script>
-    /**
-     * BLOCK DATA + COUNTDOWN
-     */
-    const targetBlock  = 888888;
-    const avgBlockTime = 10 * 60 * 1000; // 10 min in ms
-    let estimatedTimeLeft = 0;
-    let lastFetchTime = Date.now();
+    const targetBlock = 888888;
+    let blockReachedDate = null;
 
     async function fetchBlockData() {
       try {
         const res = await fetch("https://mempool.space/api/blocks/tip/height");
         const currentHeight = await res.json();
 
-        document.getElementById("current-block").innerText
-          = "Current Block: " + currentHeight;
-
+        document.getElementById("current-block").innerText = "Current Block: " + currentHeight;
         const blocksLeft = targetBlock - currentHeight;
-        document.getElementById("blocks-left").innerText
-          = "Blocks Left: " + blocksLeft;
+        document.getElementById("blocks-left").innerText = "Blocks Left: " + blocksLeft;
 
-        estimatedTimeLeft = blocksLeft * avgBlockTime;
-        lastFetchTime     = Date.now();
-
-        const targetDate = new Date(Date.now() + estimatedTimeLeft);
-        const estDate = targetDate
-          .toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-          .replace(/,\s+/, ", ");
-        document.getElementById("estimate").innerText
-          = "Estimate: " + estDate;
-
+        if (currentHeight >= targetBlock) {
+          markBlockReached();
+        }
       } catch (err) {
         console.error("Error fetching block data:", err);
       }
     }
 
-    function updateCountdown() {
-      const now = Date.now();
-      const elapsed = now - lastFetchTime;
-      const timeLeft = estimatedTimeLeft - elapsed;
-
-      if (timeLeft <= 0) {
-        document.getElementById("countdown").innerText
-          = "Block 888,888 has been reached!";
-        return;
+    function markBlockReached() {
+      if (!blockReachedDate) {
+        blockReachedDate = new Date().toLocaleDateString("en-US", {
+          year: "numeric", month: "long", day: "numeric"
+        }).replace(/,\s+/, ", ");
       }
 
-      const days    = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-      const hours   = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-      document.getElementById("countdown").innerText
-        = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      document.getElementById("countdown").innerText = `Block 888,888 was reached on ${blockReachedDate}`;
+      document.getElementById("copy-button").innerText = "Copy to Clipboard";
     }
 
-    // Initialize
-    fetchBlockData();
-    setInterval(fetchBlockData, 10 * 60 * 1000);
-    setInterval(updateCountdown, 1000);
-
-    /**
-     * COPY DATA (ASCII ART)
-     */
-    const copyFeedback = document.getElementById("copy-feedback");
     document.getElementById("copy-button").addEventListener("click", () => {
       const est  = document.getElementById("estimate").innerText.split(": ")[1];
       const cBlk = document.getElementById("current-block").innerText.split(": ")[1];
       const bLft = document.getElementById("blocks-left").innerText.split(": ")[1];
 
-      const asciiArt = `
+      const isBlockReached = blockReachedDate !== null;
+
+      let asciiArt;
+
+      if (isBlockReached) {
+        asciiArt = `
+\`\`\`
+#      ____  _____ __________⛏
+#     / __ \\/ ___//  _/ BLOCK /
+#    / /_/ /\\__ \\ / //  888888
+#   / _, _/___/ // // /___
+#  /_/ |_|/____/___/\\____/
+#
+#  Block 888,888 was reached on ${blockReachedDate}
+\`\`\`
+        `.trim();
+      } else {
+        asciiArt = `
 \`\`\`
 #      ____  _____ __________⛏
 #     / __ \\/ ___//  _/ BLOCK /
@@ -254,58 +238,20 @@
 #  /_/ |_|/____/___/\\____/
 #
 #  Estimate: ${est}
-#  Current Block:  ${cBlk}
-#  Blocks Left:  ${bLft}
+#  Current Block: ${cBlk}
+#  Blocks Left: ${bLft}
 \`\`\`
-      `.trim();
+        `.trim();
+      }
 
-      navigator.clipboard.writeText(asciiArt)
-        .then(() => {
-          copyFeedback.style.opacity = 1;
-          setTimeout(() => { copyFeedback.style.opacity = 0; }, 1000);
-        })
-        .catch(err => console.error("Clipboard error:", err));
+      navigator.clipboard.writeText(asciiArt).then(() => {
+        document.getElementById("copy-feedback").style.opacity = 1;
+        setTimeout(() => { document.getElementById("copy-feedback").style.opacity = 0; }, 1000);
+      });
     });
 
-    /**
-     * DOWNWARD RUNES BACKGROUND
-     */
-    const canvas = document.getElementById("runeCanvas");
-    const ctx    = canvas.getContext("2d");
-    const runes  = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".split("");
-
-    function resizeCanvas() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
-    let runeSymbols = [];
-    for (let i = 0; i < 50; i++) {
-      runeSymbols.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        rune: runes[Math.floor(Math.random() * runes.length)],
-        speed: Math.random() * 1.5 + 0.5,
-      });
-    }
-
-    function drawRunes() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
-      ctx.font = "30px Courier New";
-
-      runeSymbols.forEach(obj => {
-        ctx.fillText(obj.rune, obj.x, obj.y);
-        obj.y += obj.speed;
-        if (obj.y > canvas.height) {
-          obj.y = 0;
-        }
-      });
-      requestAnimationFrame(drawRunes);
-    }
-    drawRunes();
+    fetchBlockData();
+    setInterval(fetchBlockData, 10 * 60 * 1000);
   </script>
 </body>
 </html>
