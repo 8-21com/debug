@@ -206,8 +206,8 @@
       }
     }
 
-    // 2) Countdown Timer
-    let timeLeftFormatted = "";  // To store the formatted countdown time
+    // 2) Countdown Timer (Visible on Webpage with Seconds)
+    let countdownWithoutSeconds = "";  // For copy-paste
     function updateCountdown() {
       const now = Date.now();
       const timeElapsed = now - lastFetchTime;
@@ -215,19 +215,23 @@
 
       if (timeLeft <= 0) {
         document.getElementById("countdown").innerText = "🎱";
-        timeLeftFormatted = "Block Reached!";
+        countdownWithoutSeconds = "Block Reached!";
         return;
       }
 
       const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
       const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-      timeLeftFormatted = `${days}d ${hours}h ${minutes}m`;  // Store for copying
-      document.getElementById("countdown").innerText = `${days}d ${hours}h ${minutes}m`;
+      // Display seconds on the webpage
+      document.getElementById("countdown").innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      // For copy-paste (exclude seconds)
+      countdownWithoutSeconds = `${days}d ${hours}h ${minutes}m`;
     }
 
-    // 3) Copy Data to Clipboard (with Countdown)
+    // 3) Copy Data to Clipboard (No Seconds)
     const copyFeedback = document.getElementById("copy-feedback");
     document.getElementById("copy-button").addEventListener("click", () => {
       const est = document.getElementById("estimate").innerText.split(": ")[1];
@@ -242,7 +246,7 @@
 #   / _, _/___/ // // /___
 #  /_/ |_|/____/___/\\____/
 #
-#  Countdown: ${timeLeftFormatted}
+#  Countdown: ${countdownWithoutSeconds}
 #  Estimate: ${est}
 #  Current Block: ${currBlk}
 #  Blocks Left: ${blocksLeft}
